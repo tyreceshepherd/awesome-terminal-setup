@@ -156,7 +156,7 @@ $PATH
 Current environment variables (selected):
 TERM: $TERM
 EDITOR: ${EDITOR:-not set}
-PAGER: $PAGER
+PAGER: ${PAGER:-not set}
 EOF
 }
 

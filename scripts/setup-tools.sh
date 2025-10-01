@@ -55,7 +55,7 @@ setup_navi_cheats() {
 install_thefuck() {
     if ! command -v thefuck &> /dev/null; then
         print_status "Installing thefuck..."
-        pip3 install --user thefuck
+        pipx install thefuck
         print_success "thefuck installed"
     else
         print_status "thefuck already installed"
@@ -136,13 +136,35 @@ install_system_monitors() {
     elif command -v dnf &> /dev/null; then
         sudo dnf install -y htop neofetch 2>/dev/null || true
     fi
-    
+
     # Install bottom (btm) - modern system monitor written in Rust
     if ! command -v btm &> /dev/null; then
         cargo install bottom
     fi
-    
+
     print_success "System monitoring tools installed"
+}
+
+  
+# Install Rust toolchain via rustup
+# Needed for modern CLI tools written in Rust
+install_rust() {
+	print_status "Setting up Rust toolchain..."
+
+    # Remove old system Rust packages if they exist
+    if command -v apt-get &> /dev/null; then
+	    print_status "Removing old system Rust packages..."
+	    sudo apt-get remove -y cargo rustc 2>/dev/null || true
+    fi
+
+    # Install/Update Rust via rustup
+    print_status "Installing/updating Rust via rustup..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    # Load Rust into current shell Path
+    source "$HOME/.cargo/env"
+    export PATH="$HOME/.cargo/bin:$PATH"
+
+    print_success "Rust installed/updated"
 }
 
 # Setup directory for custom scripts
@@ -164,7 +186,7 @@ install_modern_tools() {
     # These significantly improve daily terminal use
     tools=(
         "procs"         # Better ps (process viewer)
-        "dust"          # Better du (disk usage)
+        "du-dust"       # Better du (disk usage)
         "tokei"         # Count lines of code
         "hyperfine"     # Command benchmarking tool
     )
@@ -181,6 +203,7 @@ install_modern_tools() {
 
 # Main function that orchestrates tool installation
 main() {
+    install_rust
     install_navi
     install_thefuck
     install_zoxide

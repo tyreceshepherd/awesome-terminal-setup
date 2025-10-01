@@ -3,7 +3,7 @@
 # This script detects your package manager and installs everything needed for the terminal setup
 # Includes: ZSH, Git, modern CLI tools, Rust toolchain, Node.js, and Nerd Fonts
 
-set -euo pipeline  # Exit on any error, undefined variables, and pipe failures
+set -eu   # Exit on any error and undefined variables
 
 # Color codes for output
 RED='\033[0;31m'
@@ -23,7 +23,7 @@ detect_package_manager() {
     if command -v apt-get &> /dev/null; then
         # Debian/Ubuntu use apt-get
         export PKG_MANAGER="apt"
-        export INSTALL_CMD="sudo apt-get update && sudo apt-get install -y"
+        export INSTALL_CMD="sudo apt-get install -y"
     elif command -v dnf &> /dev/null; then
         # Fedora/RHEL 8+ use dnf
         export PKG_MANAGER="dnf"
@@ -35,7 +35,7 @@ detect_package_manager() {
     elif command -v pacman &> /dev/null; then
         # Arch Linux uses pacman
         export PKG_MANAGER="pacman"
-        export INSTALL_CMD="sudo pacman -S --noconfirm"
+	export INSTALL_CMD="sudo pacman -S --noconfirm"
     else
         print_error "No supported package manager found!"
         exit 1
@@ -52,24 +52,25 @@ install_basic_deps() {
     case $PKG_MANAGER in
         "apt")
             # Ubuntu/Debian package names
+	    sudo $PKG_MANAGER update
             $INSTALL_CMD zsh git curl wget build-essential software-properties-common \
                         apt-transport-https ca-certificates gnupg lsb-release \
-                        util-linux-user fzf ripgrep fd-find bat exa tmux vim
+                        fzf ripgrep fd-find bat eza tmux vim python3-pip pipx
             ;;
         "dnf")
             # Fedora package names
             $INSTALL_CMD zsh git curl wget @development-tools \
-                        util-linux-user fzf ripgrep fd-find bat exa tmux vim
+                        fzf ripgrep fd-find bat eza tmux vim
             ;;
         "yum")
             # CentOS/RHEL package names
             $INSTALL_CMD zsh git curl wget gcc gcc-c++ make \
-                        util-linux-user tmux vim
+                        tmux vim
             ;;
         "pacman")
             # Arch Linux package names
             $INSTALL_CMD zsh git curl wget base-devel \
-                        fzf ripgrep fd bat exa tmux vim
+                        fzf ripgrep fd bat eza tmux vim
             ;;
     esac
     
